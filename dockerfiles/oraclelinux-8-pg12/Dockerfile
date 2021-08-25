@@ -1,6 +1,8 @@
 # vim:set ft=dockerfile:
 FROM oraclelinux:8
 
+RUN yum -y update
+
 # FIXME: Hack around docker/docker#10180
 RUN ( yum install -y yum-plugin-ovl || yum install -y yum-plugin-ovl || touch /var/lib/rpm/* ) \
     && yum clean all
