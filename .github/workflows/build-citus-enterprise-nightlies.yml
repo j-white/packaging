@@ -1,12 +1,13 @@
-name: Build and publish citus community nightly packages
+name: Build and publish citus entertprise nightly packages
 
 env:
-  MAIN_BRANCH: "all-citus"
-  PACKAGE_CLOUD_REPO_NAME: "citusdata/community-nightlies"
+  MAIN_BRANCH: "all-enterprise"
+  PACKAGE_CLOUD_REPO_NAME: "citusdata/enterprise-nightlies"
   PACKAGE_CLOUD_API_TOKEN: ${{ secrets.PACKAGE_CLOUD_API_TOKEN }}
   PACKAGING_PASSPHRASE: ${{ secrets.PACKAGING_PASSPHRASE }}
   PACKAGING_SECRET_KEY: ${{ secrets.PACKAGING_SECRET_KEY }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  UNENCRYPTED_PACKAGE: true
   DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
   DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
 on:
