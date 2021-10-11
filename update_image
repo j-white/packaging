@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# This script builds a docker image that is used for packaging.
+#
+# This script requires $TARGET_PLATFORM env to contain a supported platform name.
+# Sample platform names 'debian,buster', 'centos,7' etc.
+
+# make bash behave
+set -euo pipefail
+IFS=$'\n\t'
+
+pgversions='10 11 12 13 14'
+topdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+dockerfiles_dir="${topdir}/dockerfiles"
+
+badusage=64
+
+
+nprocs="${1:-1}"
+
+declare args
+
+
+IFS=',' read -r os release <<< "${TARGET_PLATFORM}"
+
+if [[ "${os}" = 'debian' ]] || [[ "${os}" = 'ubuntu' ]]; then
+    tag="${os}-${release}-all"
+    args+="build -t citus/packaging:${tag} -f ${dockerfiles_dir}/${tag}/Dockerfile .\n"
+elif [[ "${os}" = 'centos' ]] || [[ "${os}" = 'oraclelinux' ]]; then
+    # redhat variants need an image for each PostgreSQL version
+    IFS=' '
+    for pgversion in ${pgversions}; do
+        if { [[ "${os}" = 'centos' ]] || [[ "${os}" = 'oraclelinux' ]]; } && \
+             [[ "${release}" = '6' ]] && [[ "${pgversion}" = '13' ]]; then
+            # CentOS and OracleLinux 6 doesn't have pg13 packages yet.
+            # So skip building docker images for them.
+            continue
+        fi
+        pgshort=${pgversion//./}
+        tag="${os}-${release}-pg${pgshort}"
+        args+="build -t citus/packaging:${tag} -f ${dockerfiles_dir}/${tag}/Dockerfile .\n"
+    done
+elif [[ "${os}" = 'pgxn' ]]; then
+    tag="${os}-all"
+    args+="build -t citus/packaging:${tag} -f ${dockerfiles_dir}/${tag}/Dockerfile .\n"
+else
+    echo "$0: unrecognized OS -- ${os}" >&2
+    exit $badusage
+fi
+
+
+echo -e "${args}" | xargs -t -L1 -P "${nprocs}" docker
