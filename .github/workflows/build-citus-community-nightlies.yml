@@ -46,7 +46,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Clone tools branch
-        run: git clone -b v0.8.6 --depth=1  https://github.com/citusdata/tools.git tools
+        run: git clone -b v0.8.9 --depth=1  https://github.com/citusdata/tools.git tools
 
       - name: Clone build branch
         run: git clone -b "${MAIN_BRANCH}" --depth=1  https://github.com/citusdata/packaging.git packaging
@@ -76,4 +76,4 @@ jobs:
           --repository_name "${PACKAGE_CLOUD_REPO_NAME}" \
           --output_file_path "$(pwd)/packages" \
           --current_branch "${GITHUB_REF##*/}" \
-          --main_branch "${MAIN_BRANCH}"
+          --main_branch "develop"
