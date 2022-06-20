@@ -7,7 +7,7 @@ env:
   PACKAGING_PASSPHRASE: "${{ secrets.PACKAGING_PASSPHRASE }}"
   DOCKERHUB_PASSWORD: "${{ secrets.DOCKERHUB_PASSWORD }}"
   DOCKERHUB_USER_NAME: "${{ secrets.DOCKERHUB_USER_NAME }}"
-  CURRENT_BRANCH: ${GITHUB_REF##*/}
+  CURRENT_BRANCH: "${GITHUB_REF##*/}"
   TEST: false
 on:
   push:
@@ -83,7 +83,9 @@ jobs:
           PACKAGING_IMAGE_PLATFORM: "${{matrix.TARGET_PLATFORM}}"
 
       - name: Push images
-        run: ./ci/push_images
+        run: |
+            export CURRENT_BRANCH=${GITHUB_REF##*/}
+            ./ci/push_images
         env:
           TARGET_PLATFORM: ${{ matrix.TARGET_PLATFORM }}
           POSTGRES_VERSION: ${{ matrix.POSTGRES_VERSION }}
