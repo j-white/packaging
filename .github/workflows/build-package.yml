@@ -7,6 +7,8 @@ env:
   PACKAGING_PASSPHRASE: "${{ secrets.PACKAGING_PASSPHRASE }}"
   DOCKERHUB_PASSWORD: "${{ secrets.DOCKERHUB_PASSWORD }}"
   DOCKERHUB_USER_NAME: "${{ secrets.DOCKERHUB_USER_NAME }}"
+  ACR_PASSWORD: "${{ secrets.ACR_PASSWORD }}"
+  ACR_SERVICE_PRINCIPAL_ID: "${{ secrets.ACR_SERVICE_PRINCIPAL_ID }}"
   CURRENT_BRANCH: "${GITHUB_REF##*/}"
   TEST: false
 on:
@@ -74,7 +76,7 @@ jobs:
           POSTGRES_VERSION: ${{ matrix.POSTGRES_VERSION }}
 
       - name: Clone tools repo for test
-        run: git clone -b v0.8.15 --depth=1  https://github.com/citusdata/tools.git tools
+        run: git clone -b v0.8.17 --depth=1  https://github.com/citusdata/tools.git tools
 
       - name: Execute packaging tests
         run: |
