@@ -164,6 +164,13 @@ curl -sL "${tarballurl}" -o "${download}"
 
 tarballpath="${rpmbuilddir}/${gitsha}"
 tar xf "${download}" -C "${pkgsrcdir}" --strip-components 1
+
+# git metadata needs to be setup to initialize submodules
+# in repos which rely on git submodules
+if [[ -f "${pkgsrcdir}/.gitmodules" ]]; then
+    setup_submodules "${pkgsrcdir}"
+fi
+
 tar czf "${tarballpath}" "${pkgsrcdir}"
 
 # force our URL and expanded folder names into spec
