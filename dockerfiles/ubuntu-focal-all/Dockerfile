@@ -37,6 +37,11 @@ RUN set -ex; \
     rm -rf "$GNUPGHOME"; \
     apt-key list
 
+# add buster backports repo to be able to download missing packages in buster main repo
+RUN ( [ ubuntu != debian ] || [ focal != buster ] ) || ( \
+    echo "deb http://deb.debian.org/debian buster-backports main" >> /etc/apt/sources.list  \
+    )
+
 # install build tools and PostgreSQL development files
 
 RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main 15' > /etc/apt/sources.list.d/pgdg.list \
@@ -72,6 +77,16 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main 15' > /et
         liblz4-1 \
         libzstd1 \
         libzstd-dev \
+# below are needed for cmake and pgazure build
+        checkinstall \
+        git \
+        libtemplate-perl \
+        pkg-config \
+        tar \
+        unzip \
+        uuid \
+        uuid-dev \
+        zip \
         sudo \
     && rm -rf /var/lib/apt/lists/*
 
@@ -89,6 +104,18 @@ RUN curl -s https://packagecloud.io/install/repositories/citusdata/community/scr
 # patch pg_buildext to use multiple processors
 COPY make_pg_buildext_parallel.patch /
 RUN patch `which pg_buildext` < /make_pg_buildext_parallel.patch
+
+
+# install cmake from source
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2.tar.gz && \
+    tar -zxvf cmake-3.22.2.tar.gz && \
+    cd cmake-3.22.2 && ./bootstrap && \
+    make && \
+    make install && \
+    rm -f cmake-3.22.2.tar.gz && \
+    rm -rf cmake-3.22.2
+
+
 
 # Added for pg15 beta package support.
 ENV DEB_PG_SUPPORTED_VERSIONS="10 11 12 13 14 15"
