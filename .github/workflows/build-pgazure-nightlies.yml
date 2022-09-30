@@ -31,12 +31,13 @@ jobs:
           # - el/8
 # temporarily removed from nightlies since pg15 beta is not being downloaded for ol/7
 # - ol/7
-# Haven't worked on deb support for pgazure. Will enable below block after deb support is added
+# Not enabled since build fails for debian/stretch
 #          - debian/stretch
-#          - debian/buster
-#          - debian/bullseye
+          - debian/buster
+          - debian/bullseye
+# Not enabled since build fails for ubuntu/bionic
 #          - ubuntu/bionic
-#          - ubuntu/focal
+          - ubuntu/focal
 
     steps:
       - name: Checkout repository
@@ -50,7 +51,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Clone tools branch
-        run: git clone -b v0.8.17 --depth=1  https://github.com/citusdata/tools.git tools
+        run: git clone -b v0.8.19 --depth=1  https://github.com/citusdata/tools.git tools
 
       - name: Clone build branch
         run: git clone -b "${MAIN_BRANCH}" --depth=1  https://github.com/citusdata/packaging.git packaging
