@@ -1,6 +1,5 @@
 # vim:set ft=dockerfile:
 FROM centos:7
-
 RUN [[ centos != centos ]] || [[ 7 != 8 ]] || ( \
     cd /etc/yum.repos.d/ && sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
     && sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-* \
@@ -46,6 +45,9 @@ RUN ( yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7
     && [[ -z "epel-release centos-release-scl-rh" ]] || yum install -y epel-release centos-release-scl-rh) \
     && yum groupinstall -y 'Development Tools' \
     && yum install -y \
+        bzip2-devel \
+        libffi-devel \
+        xz-devel \
         flex \
         gcc-c++ \
         hunspell-en \
@@ -104,6 +106,19 @@ RUN [[ centos != centos ]] || [[ 7 != 7 ]] || ( \
     yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm && \
     yum -y install git && \
     yum -y install  devtoolset-8-gcc-c++ && scl enable devtoolset-8 bash )
+
+# install python 3.8 to be able to execute tools scripts
+ARG PYTHON_VERSION=3.8.16
+RUN set -ex \
+    && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
+    && export PATH="$HOME/.pyenv/bin:$PATH" \
+    && pyenv update \
+    && pyenv install $PYTHON_VERSION \
+    && pyenv global $PYTHON_VERSION \
+    && pyenv rehash \
+    && echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc \
+    && echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc \
+    && echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 
 RUN touch /rpmlintrc \
     && echo '%_build_pkgcheck %{_bindir}/rpmlint -f /rpmlintrc' >> /etc/rpm/macros

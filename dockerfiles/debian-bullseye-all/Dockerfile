@@ -55,6 +55,8 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /et
         devscripts \
         fakeroot \
         flex \
+        libbz2-dev \
+        libffi-dev \
         libcurl4-openssl-dev \
         libdistro-info-perl \
         libedit-dev \
@@ -115,6 +117,18 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2
     rm -f cmake-3.22.2.tar.gz && \
     rm -rf cmake-3.22.2
 
+# install pyenv and python 3.8 to be able to execute tools scripts
+ARG PYTHON_VERSION=3.8.16
+RUN set -ex \
+    && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
+    && export PATH="$HOME/.pyenv/bin:$PATH" \
+    && pyenv update \
+    && pyenv install $PYTHON_VERSION \
+    && pyenv global $PYTHON_VERSION \
+    && pyenv rehash \
+    && echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc \
+    && echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc \
+    && echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 
 
 # Added for pg15 beta package support.
