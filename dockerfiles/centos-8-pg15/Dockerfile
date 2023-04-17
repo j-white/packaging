@@ -7,6 +7,31 @@ RUN [[ centos != centos ]] || [[ 8 != 8 ]] || ( \
 
 RUN yum -y update
 
+RUN  [[ centos != centos ]] || [[ 8 != 8 ]] || ( \
+    dnf install epel-release -y && \
+    dnf install dnf-plugins-core -y && \
+    dnf install epel-release -y && \
+    dnf config-manager --set-enabled powertools && \
+    dnf install -y perl-IPC-Run \
+    )
+
+RUN  [[ centos != oraclelinux ]] || [[ 8 != 8 ]] || ( \
+    curl -sO  https://vault.centos.org/centos/8/PowerTools/x86_64/os/Packages/perl-IO-Tty-1.12-11.el8.x86_64.rpm && \
+    curl -sO  https://vault.centos.org/centos/8/PowerTools/x86_64/os/Packages/perl-IPC-Run-0.99-1.el8.noarch.rpm && \
+    dnf install perl-IO-Tty-1.12-11.el8.x86_64.rpm -y  && \
+    dnf install perl-IPC-Run-0.99-1.el8.noarch.rpm -y && \
+    rm -f perl-IPC-Run-0.99-1.el8.noarch.rpm && \
+    rm -f perl-IO-Tty-1.12-11.el8.x86_64.rpm \
+    )
+
+RUN  [[ centos != almalinux ]] || [[ 8 != 9 ]] || ( \
+    dnf install epel-release -y && \
+    dnf -y install dnf-plugins-core && \
+    dnf config-manager --enable epel && \
+    dnf config-manager --set-enabled crb && \
+    dnf install -y perl-IPC-Run \
+    )
+
 # FIXME: Hack around docker/docker#10180
 RUN ( yum install -y yum-plugin-ovl || yum install -y yum-plugin-ovl || touch /var/lib/rpm/* ) \
     && yum clean all
@@ -105,7 +130,10 @@ RUN [[ centos != centos ]] || [[ 8 != 7 ]] || ( \
     yum -y remove git && \
     yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm && \
     yum -y install git && \
-    yum -y install  devtoolset-8-gcc-c++ && scl enable devtoolset-8 bash )
+    yum -y install  devtoolset-8-gcc-c++ && scl enable devtoolset-8 bash && \
+    yum -y install llvm-toolset-7 && \
+    yum clean all \
+    )
 
 # install python 3.8 to be able to execute tools scripts
 ARG PYTHON_VERSION=3.8.16
@@ -119,6 +147,11 @@ RUN set -ex \
     && echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc \
     && echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc \
     && echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+
+# install llvm-toolset-7 to be able to install clang 5.0
+# clang 5.0 is required to build pg_azure_storage project
+ENV LD_LIBRARY_PATH=/opt/rh/llvm-toolset-7/root/usr/lib64/:$LD_LIBRARY_PATH
+ENV PATH=/opt/rh/llvm-toolset-7/root/usr/bin:$PATH
 
 RUN touch /rpmlintrc \
     && echo '%_build_pkgcheck %{_bindir}/rpmlint -f /rpmlintrc' >> /etc/rpm/macros

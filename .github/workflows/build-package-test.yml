@@ -42,7 +42,6 @@ jobs:
           - oraclelinux,7
           - almalinux,9
         POSTGRES_VERSION:
-          - 10
           - 11
           - 12
           - 13

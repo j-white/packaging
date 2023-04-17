@@ -74,6 +74,7 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /et
         wget \
         zlib1g-dev \
         python3-pip \
+        python3-sphinx \
         python3-setuptools \
         liblz4-dev \
         liblz4-1 \
@@ -92,7 +93,6 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /et
         sudo \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install sphinx
 
 # install jq to process JSON API responses
 RUN curl -sL https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 \
@@ -100,7 +100,7 @@ RUN curl -sL https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 
     && chmod +x /usr/bin/jq
 
 # install packagecloud repos for pg_auto_failover
-RUN curl -s https://packagecloud.io/install/repositories/citusdata/community/script.deb.sh | bash \
+RUN curl https://install.citusdata.com/community/deb.sh | bash \
     && rm -rf /var/lib/apt/lists/*
 
 # patch pg_buildext to use multiple processors

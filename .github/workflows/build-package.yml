@@ -43,7 +43,6 @@ jobs:
           - oraclelinux,7
           - almalinux,9
         POSTGRES_VERSION:
-          - 10
           - 11
           - 12
           - 13
@@ -58,7 +57,6 @@ jobs:
           - TARGET_PLATFORM: ubuntu,jammy
           - TARGET_PLATFORM: ubuntu,kinetic
           - TARGET_PLATFORM: pgxn
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
