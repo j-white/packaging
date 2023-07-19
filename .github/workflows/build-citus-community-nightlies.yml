@@ -49,5 +49,7 @@ jobs:
           --gh_token "${GH_TOKEN}" \
           --platform "${{ matrix.platform }}" \
           --build_type "nightly" \
+          --secret_key "secret" \
+          --passphrase "secret" \
           --output_dir "$(pwd)/packages/" \
           --input_files_dir "$(pwd)/packaging"
