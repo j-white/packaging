@@ -64,6 +64,10 @@ case "${2}" in
         ;;
 esac
 
+if [ "$project" = 'citus' ]; then
+    format='all'
+fi
+
 targetdir=$3
 # validate inputs
 if ! [ -d "${targetdir}" ]; then

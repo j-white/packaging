@@ -51,10 +51,16 @@ while read -r line; do
             # So skip building distro package for it.
             continue
         fi
+
+        # FIXME: These are built from the contents of 'postgres-matrix.yml' using a Python script in the tools repo
+        echo "releasepg=14,15" > ${buildfilesdir}/deb/supported-postgres
+        echo "nightlypg=14,15" >> ${buildfilesdir}/deb/supported-postgres
+
         args+="run --rm -v ${outputdir}:/packages -v ${buildfilesdir}/deb:/buildfiles:ro "
+        args+="-e CONTAINER_BUILD_RUN_ENABLED=true "
         args+="-e GITHUB_TOKEN=${GITHUB_TOKEN} -e DEBFULLNAME='${name}' -e DEBEMAIL='${email}' "
-        args+="citusdata/packaging:${os}-${release}-all $buildtype\n"
-    elif [[ "${os}" = 'centos' ]] || [[ "${os}" = 'fedora' ]] || [[ "${os}" = 'oraclelinux' ]]; then
+        args+="citus/packaging:${os}-${release}-all $buildtype\n"
+    elif [[ "${os}" = 'centos' ]] || [[ "${os}" = 'fedora' ]] || [[ "${os}" = 'oraclelinux' ]] || [[ "${os}" = 'almalinux' ]]; then
         # shellcheck source=/dev/null
         source "${buildfilesdir}/rpm/pkgvars"
         releasepg="${releasepg:-11,12,13}"
@@ -78,13 +84,15 @@ while read -r line; do
             fi
             pgshort=${pgversion//./}
             args+="run --rm -v ${outputdir}:/packages -v ${buildfilesdir}/rpm:/buildfiles:ro "
+            args+="-e CONTAINER_BUILD_RUN_ENABLED=true "
             args+="-e GITHUB_TOKEN=${GITHUB_TOKEN} -e RPM_PACKAGER='${packager}' "
-            args+="citusdata/packaging:${os}-${release}-pg${pgshort} $buildtype\n"
+            args+="citus/packaging:${os}-${release}-pg${pgshort} $buildtype\n"
         done
     elif [[ "${os}" = 'pgxn' ]]; then
         if [[ "${project}" = 'citus' ]] && [[ "${buildtype}" = 'release' ]]; then
             args+="run --rm -v ${outputdir}:/packages -v ${buildfilesdir}/pgxn:/buildfiles:ro "
-            args+="-e GITHUB_TOKEN=${GITHUB_TOKEN} citusdata/packaging:${os}-all $buildtype\n"
+            args+="-e CONTAINER_BUILD_RUN_ENABLED=true "
+            args+="-e GITHUB_TOKEN=${GITHUB_TOKEN} citus/packaging:${os}-all $buildtype\n"
         else
             echo "skipping PGXN... unsupported for this build" >&2
         fi
