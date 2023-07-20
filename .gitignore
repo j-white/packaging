@@ -7,3 +7,5 @@
 
 # package output directory
 /packages
+
+.DS_Store
